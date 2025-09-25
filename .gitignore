@@ -1,0 +1,4 @@
+auth-service/.env
+frontend-service/.env
+storage-service/.env
+object-storage/.env
