@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+      - name: auth-service
+        image: sany21/auth-service:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jwt-secret
+              key: SECRET
+        volumeMounts:
+        - name: users-db
+          mountPath: /auth-service/data
+          # No subPath, mount the whole directory
+      volumes:
+      - name: users-db
+        persistentVolumeClaim:
+          claimName: users-db-pvc

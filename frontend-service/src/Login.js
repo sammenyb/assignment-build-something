@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Box, Button, TextField, Typography, Paper, Alert, Link } from '@mui/material';
 
 function Login({ onLogin }) {
   const [mode, setMode] = useState('login');
@@ -12,8 +13,8 @@ function Login({ onLogin }) {
     try {
       const url =
         mode === 'login'
-          ? 'http://localhost:8000/login'
-          : 'http://localhost:8000/register';
+          ? 'http://192.168.49.2:30080/login'
+          : 'http://192.168.49.2:30080/register';
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -33,46 +34,69 @@ function Login({ onLogin }) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h3>{mode === 'login' ? 'Login' : 'Register'}</h3>
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={e => setUsername(e.target.value)}
-        required
-        style={{ width: '100%', marginBottom: 8 }}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={e => setPassword(e.target.value)}
-        required
-        style={{ width: '100%', marginBottom: 8 }}
-      />
-      <button type="submit" style={{ width: '100%' }}>
+    <Box
+      component={Paper}
+      elevation={3}
+      sx={{
+        maxWidth: 350,
+        mx: 'auto',
+        mt: 8,
+        p: 4,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 2,
+      }}
+    >
+      <Typography variant="h5" align="center" gutterBottom>
         {mode === 'login' ? 'Login' : 'Register'}
-      </button>
-      <div style={{ marginTop: 8 }}>
+      </Typography>
+      <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <TextField
+          label="Username"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
+          required
+          fullWidth
+        />
+        <TextField
+          label="Password"
+          type="password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          required
+          fullWidth
+        />
+        <Button type="submit" variant="contained" fullWidth>
+          {mode === 'login' ? 'Login' : 'Register'}
+        </Button>
+      </Box>
+      <Box textAlign="center">
         {mode === 'login' ? (
-          <span>
+          <Typography variant="body2">
             Need an account?{' '}
-            <button type="button" onClick={() => setMode('register')}>
+            <Link
+              component="button"
+              variant="body2"
+              onClick={() => setMode('register')}
+            >
               Register
-            </button>
-          </span>
+            </Link>
+          </Typography>
         ) : (
-          <span>
+          <Typography variant="body2">
             Already have an account?{' '}
-            <button type="button" onClick={() => setMode('login')}>
+            <Link
+              component="button"
+              variant="body2"
+              onClick={() => setMode('login')}
+            >
               Login
-            </button>
-          </span>
+            </Link>
+          </Typography>
         )}
-      </div>
-      {err && <p style={{ color: 'red' }}>{err}</p>}
-    </form>
+      </Box>
+      {err && <Alert severity="error">{err}</Alert>}
+    </Box>
   );
 }
 

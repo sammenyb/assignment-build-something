@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storage-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: storage-service
+  template:
+    metadata:
+      labels:
+        app: storage-service
+    spec:
+      containers:
+      - name: storage-service
+        image: sany21/storage-service:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jwt-secret
+              key: SECRET
+        volumeMounts:
+        - name: files-db
+          mountPath: /storage-service/data
+          # No subPath, mount the whole directory
+      volumes:
+      - name: files-db
+        persistentVolumeClaim:
+          claimName: files-db-pvc

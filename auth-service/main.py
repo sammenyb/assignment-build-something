@@ -7,17 +7,19 @@ import os
 from dotenv import load_dotenv
 import sqlite3
 
+origins = ["http://192.168.49.2:30000"]
+
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change this to the frontend URL when done
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-DATABASE_PATH = "./users.db"
+DATABASE_PATH = "/auth-service/data/users.db"
 
 def init_db():
     conn = sqlite3.connect(DATABASE_PATH)

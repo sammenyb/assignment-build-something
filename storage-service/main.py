@@ -1,6 +1,6 @@
 import sqlite3
 from datetime import datetime
-from fastapi import FastAPI, UploadFile, File, HTTPException, Depends
+from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Query, Request
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.responses import StreamingResponse
 import os
@@ -10,10 +10,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from minio import Minio
 import io
 
+origins = ["http://192.168.49.2:30000"]
+
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change this to the frontend URL when done
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -23,7 +25,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 load_dotenv()
 
 
-DATABASE_PATH = "./files.db"
+DATABASE_PATH = "/storage-service/data/files.db"
 
 def init_db():
     conn = sqlite3.connect(DATABASE_PATH)
@@ -136,8 +138,27 @@ async def upload_file(file: UploadFile = File(...), username: str = Depends(veri
     conn.close()
     return {"filename": file.filename}
 
+
 @app.get("/download/{filename}")
-def download_file(filename: str, username: str = Depends(verify_token)):
+def download_file(filename: str, request: Request, token: str = Query(None)):
+    # Try to get token from Authorization header first
+    auth_header = request.headers.get("authorization")
+    username = None
+    if auth_header and auth_header.lower().startswith("bearer "):
+        try:
+            jwt_token = auth_header.split(" ", 1)[1]
+            payload = jwt.decode(jwt_token, SECRET, algorithms=["HS256"])
+            username = payload["username"]
+        except jwt.PyJWTError:
+            raise HTTPException(status_code=401, detail="Invalid token")
+    elif token:
+        try:
+            payload = jwt.decode(token, SECRET, algorithms=["HS256"])
+            username = payload["username"]
+        except jwt.PyJWTError:
+            raise HTTPException(status_code=401, detail="Invalid token")
+    else:
+        raise HTTPException(status_code=401, detail="Not authenticated")
     # Check if user has read permission for the file
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
