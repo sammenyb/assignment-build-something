@@ -26,7 +26,6 @@ spec:
         volumeMounts:
         - name: users-db
           mountPath: /auth-service/data
-          # No subPath, mount the whole directory
       volumes:
       - name: users-db
         persistentVolumeClaim:

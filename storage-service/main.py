@@ -5,7 +5,6 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi.responses import StreamingResponse
 import os
 import jwt
-from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 from minio import Minio
 import io
@@ -21,8 +20,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-load_dotenv()
 
 
 DATABASE_PATH = "/storage-service/data/files.db"
@@ -63,7 +60,7 @@ if not SECRET:
     raise RuntimeError("SECRET environment variable not set")
 
 minio_client = Minio(
-    "minio:9000",  # Use "localhost:9000" if running outside Docker, "minio:9000" if in Docker Compose
+    "minio:9000", 
     access_key="minioadmin",
     secret_key="minioadmin123",
     secure=False

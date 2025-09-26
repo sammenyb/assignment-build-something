@@ -4,7 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from models import User
 import jwt
 import os
-from dotenv import load_dotenv
 import sqlite3
 
 origins = ["http://192.168.49.2:30000"]
@@ -55,9 +54,6 @@ def add_user(username, password):
 
 init_db()
 
-
-
-load_dotenv()
 
 SECRET = os.getenv("SECRET")
 if not SECRET:
